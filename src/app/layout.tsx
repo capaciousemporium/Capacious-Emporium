@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: "Capacious Emporium | The Editorial Marketplace",
   description: "A curated, high-end e-commerce experience. Discover products presented with editorial precision.",
 };
-
+<meta name="apple-mobile-web-app-title" content="Capacious-Emporium" />
 export default async function RootLayout({
   children,
 }: Readonly<{

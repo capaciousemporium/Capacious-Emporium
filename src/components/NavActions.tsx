@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ShoppingCart, Settings, Globe, ChevronDown, Coins, Gift } from "lucide-react";
+import { User, LogOut, ShoppingCart, Settings, Globe, ChevronDown, Coins, Gift, House , ShoppingBag , ChartColumnStacked , ShoppingBasket, UserRoundKey  } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { signOut } from "next-auth/react";
 
@@ -138,6 +138,34 @@ const handleLogout = async () => {
                 <Link href={`/${locale}/account/settings`} className="dropdown-link">
                   <Settings size={14} /> Account Settings
                 </Link>
+                <div className="dropdown-divider"></div>
+
+{/* Tablet Menu */}
+<Link href={`/${locale}`} className="dropdown-link tablet-only">
+ <House size={14}/> Home
+</Link>
+
+<Link href={`/${locale}/shop`} className="dropdown-link tablet-only">
+ <ShoppingBag size={14}/> Shop
+</Link>
+
+<Link href={`/${locale}/categories`} className="dropdown-link tablet-only">
+ 
+ <ChartColumnStacked size={14} /> Categories
+</Link>
+
+<Link href={`/${locale}/orders`} className="dropdown-link tablet-only">
+ <ShoppingBasket size={14} /> Orders
+</Link>
+
+{session?.role === "admin" && (
+  <Link
+    href="/admin"
+    className="dropdown-link tablet-only"
+  >
+  <UserRoundKey size={14} />  Admin Dashboard
+  </Link>
+)}
                 <button 
                   className="dropdown-link logout"
                   onClick={handleLogout}

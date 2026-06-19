@@ -52,3 +52,50 @@ export async function GET(
 
   return NextResponse.json(data);
 }
+
+
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    const body = await req.json();
+
+    const trackingNumber = body?.trackingNumber?.trim();
+
+    if (!trackingNumber) {
+      return NextResponse.json(
+        { error: "Tracking number is required" },
+        { status: 400 }
+      );
+    }
+
+    const order = await prisma.order.update({
+      where: {
+        id,
+      },
+      data: {
+        trackingNumber,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("Tracking save error:", error);
+
+    return NextResponse.json(
+      {
+        error: "Failed to save tracking number",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
