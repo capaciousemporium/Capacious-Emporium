@@ -1364,7 +1364,7 @@ label {
   bottom: 6.5rem;
   right: 2rem;
   width: 360px;
-  height: 520px;
+  height: 75%;
   max-width: calc(100vw - 4rem);
   background-color: var(--surface);
   backdrop-filter: blur(40px) saturate(180%);
@@ -1826,4 +1826,250 @@ label {
   
   background: rgba(0,0,0,0.25);
   border-radius: 10px;
+}
+
+
+.product-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) 1.5fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .product-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .product-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.image-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.9);
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.image-modal-img {
+  max-width: 95vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  border: none;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.desktop-logo {
+  display: block;
+  margin-top: 10px;
+}
+
+.mobile-logo {
+  display: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .desktop-logo {
+    display: none;
+  }
+
+  .mobile-logo {
+    display: block;
+    width: 80% !important;
+    height: auto !important;
+  }
+}
+
+/* ................... */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+
+  z-index: 999;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 12px;
+    left: 10vw;      /* left e gap */
+  right: 0;        /* right edge touch korbe */
+
+  width: min(680px, 90vw);
+  height: calc(100vh - 24px);
+
+  background: var(--surface);
+
+  border: 1px solid var(--outline-variant);
+  border-radius: 24px;
+
+  z-index: 1000;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 1rem;
+
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.18),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+
+  animation: slideInRight .35s ease;
+}
+
+.mobile-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.mobile-menu::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.25);
+  border-radius: 999px;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.mobile-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--surface-container);
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+.mobile-close-btn:hover {
+  transform: rotate(90deg);
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 1rem;
+  margin-top: 2rem;
+
+  border-radius: 16px;
+
+  background: linear-gradient(
+    135deg,
+    var(--primary-container),
+    var(--surface-container)
+  );
+}
+
+.mobile-avatar {
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.4rem;
+  font-weight: 700;
+
+  background: var(--primary);
+  color: white;
+}
+
+.mobile-divider {
+  height: 1px;
+  background: var(--outline-variant);
+  margin: 1rem 0;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.mobile-nav-links a {
+  padding: 1rem 1.1rem;
+
+  border-radius: 16px;
+
+  text-decoration: none;
+  color: var(--on-surface);
+
+  font-weight: 600;
+
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container-low);
+
+  transition: all .25s ease;
+}
+
+.mobile-nav-links a:hover {
+  transform: translateX(6px);
+  background: var(--primary-container);
+  border-color: var(--primary);
+}
+
+
+@keyframes mobileMenuOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

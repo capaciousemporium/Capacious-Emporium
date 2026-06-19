@@ -14,6 +14,7 @@ interface PersistedChatMessage {
 }
 
 function safeParseMessages(raw: string | null | undefined): PersistedChatMessage[] {
+  
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -219,7 +220,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  console.log("POST HIT");
   try {
+    
+
+    // const { messages, provider, sessionId } = body;
     // Rate limit: 8/min for authenticated, 3/min for anonymous (decreased for safety)
     const clientIp = getClientIp(request);
     const userSession = await getSession();
@@ -460,71 +465,105 @@ AI RULES:
     if (!selectedProvider) {
       selectedProvider = (settings?.aiProvider as AIProviderName) || "gemini";
     }
-
+console.log("provider from frontend =", provider);
+console.log("settings.aiProvider =", settings?.aiProvider);
+console.log("selectedProvider =", selectedProvider);
     const aiProvider = getAIProvider(selectedProvider);
     
     // STREAMING FLOW
-    const stream = await aiProvider.chatStream(enhancedMessages, userSession?.userId);
-    let fullResponse = "";
+ const aiResponse = await aiProvider.chat(
+  enhancedMessages,
+  userSession?.userId
+);
 
-    const transformStream = new TransformStream({
-      async transform(chunk, controller) {
-        const text = new TextDecoder().decode(chunk);
-        fullResponse += text;
-        controller.enqueue(chunk);
+const handoffConfirmationPhrase =
+  "I'll connect you to our support team right now.";
+
+const needsHandoffFromAI =
+  aiResponse.includes(handoffConfirmationPhrase);
+
+const userWantsHandoff =
+  latestUserMessage
+    .toLowerCase()
+    .match(
+      /^(connect me to a human|talk to human|agent please|speak with agent)$/i
+    );
+
+let finalStatus =
+  needsHandoffFromAI || userWantsHandoff
+    ? "human_needed"
+    : "ai_handling";
+
+if (finalStatus === "human_needed" && !userSession) {
+  finalStatus = "ai_handling";
+}
+const currentSessionId =
+  sessionId || crypto.randomUUID();
+try {
+  const session = await prisma.supportSession.upsert({
+    where: { id: currentSessionId },
+    update: {
+      status: finalStatus,
+      userId:
+        existingSupportSession?.userId ||
+        userSession?.userId ||
+        null,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: currentSessionId,
+      userId: userSession?.userId || null,
+      status: finalStatus,
+    },
+  });
+
+  const latestMsg =
+    normalizedMessages[normalizedMessages.length - 1];
+
+  if (latestMsg?.role === "user") {
+    await (prisma as any).chatMessage.create({
+      data: {
+        sessionId: session.id,
+        role: "user",
+        content: latestMsg.content,
+        isHuman: false,
       },
-      async flush() {
-        // BACKGROUND PERSISTENCE: Save the complete message after the stream finishes
-        const handoffConfirmationPhrase = "I'll connect you to our support team right now.";
-        const needsHandoffFromAI = fullResponse.includes(handoffConfirmationPhrase);
-        const userWantsHandoff = latestUserMessage.toLowerCase().match(/^(connect me to a human|talk to human|agent please|speak with agent)$/i);
-        let finalStatus = (needsHandoffFromAI || userWantsHandoff) ? "human_needed" : "ai_handling";
-
-        if (finalStatus === "human_needed" && !userSession) {
-          finalStatus = "ai_handling";
-        }
-
-        try {
-          const session = await prisma.supportSession.upsert({
-            where: { id: sessionId },
-            update: {
-              status: finalStatus,
-              userId: existingSupportSession?.userId || userSession?.userId || null,
-              updatedAt: new Date(),
-            },
-            create: {
-              id: sessionId,
-              userId: userSession?.userId || null,
-              status: finalStatus,
-            },
-          });
-
-          const latestMsg = normalizedMessages[normalizedMessages.length - 1];
-          if (latestMsg && latestMsg.role === "user") {
-            await (prisma as any).chatMessage.create({
-              data: { sessionId: session.id, role: "user", content: latestMsg.content, isHuman: false },
-            });
-          }
-          await (prisma as any).chatMessage.create({
-            data: { sessionId: session.id, role: "assistant", content: fullResponse, isHuman: false },
-          });
-        } catch (e) {
-          console.error("Stream persistence error:", e);
-        }
-      }
     });
-
-    return new Response(stream.pipeThrough(transformStream), {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
-    });
-  } catch (error) {
-    console.error("AI Chat error:", error);
-    return NextResponse.json({
-      error: "I'm sorry, I'm having trouble processing your request right now."
-    }, { status: 500 });
   }
+
+  await (prisma as any).chatMessage.create({
+    data: {
+      sessionId: session.id,
+      role: "assistant",
+      content: aiResponse,
+      isHuman: false,
+    },
+  });
+} catch (e) {
+  console.error("Chat persistence error:", e);
+}
+
+return NextResponse.json({
+  success: true,
+  provider: selectedProvider,
+  response: aiResponse,
+  status: finalStatus,
+});
+
+   
+
+   
+ } catch (error) {
+  console.error("AI Chat error FULL:", error);
+
+  return NextResponse.json(
+    {
+      error:
+        error instanceof Error
+          ? error.message
+          : "I'm sorry, I'm having trouble processing your request right now.",
+    },
+    { status: 500 }
+  );
+}
 }

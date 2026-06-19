@@ -167,6 +167,10 @@ export default function AIChatCard() {
 
   const handleSend = async (event: React.FormEvent) => {
     event.preventDefault();
+      console.log("SEND CLICKED");
+  console.log("sessionId =", sessionId);
+  console.log("loading =", loading);
+  console.log("input =", input);
     if (!input.trim() || loading || !sessionId) return;
     audioCtxRef.current?.resume();
     const userMessage: ChatUiMessage = { role: "user", content: input.trim(), timestamp: new Date().toISOString() };
@@ -176,6 +180,7 @@ export default function AIChatCard() {
     setLoading(true);
     setError("");
     try {
+      
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

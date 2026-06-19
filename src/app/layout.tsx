@@ -12,7 +12,8 @@ import SearchBar from "@/components/SearchBar";
 import { prisma } from "@/lib/prisma";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import Image from "next/image";
-import Logo from "../../public/images/Logo.png"
+import Logo1 from "../../public/images/Logo.png"
+import Logo2 from "../../public/images/Hadder.webp"
 import MobileMenu from "@/components/MobileMenu";
 import SessionManager from "@/components/SessionManager";
 import SessionGuard from "@/components/SessionGuard";
@@ -91,15 +92,27 @@ export default async function RootLayout({
             <header className="glass-nav">
               <div className="container nav-inner">
                 <Link href={`/${locale}`} className="logo">
+
+  {/* Desktop Logo */}
+  <Image
+    src={Logo1}
+    alt="Capacious Emporium Logo"
+    width={100}
+    height={100}
+    className="logo-image desktop-logo"
+  />
+
+  {/* Mobile Logo */}
 <Image
-  src={Logo}
-  style={{ borderRadius: '50%', paddingTop: "5px" }}
-  alt="Capacious Emporium Logo"
-  width={100}
-  height={100}
-  className="logo-image"
-/>                  {/* Capacious<span className="logo-accent">Emporium</span> */}
-                </Link>
+  src={Logo2}
+  alt="Mobile Logo"
+  width={200}
+  height={160}
+  className="mobile-logo"
+/>
+
+
+</Link>
 
                 <nav className="nav-links">
                   <Link href={`/${locale}`} className="nav-link">Home</Link>
@@ -172,7 +185,7 @@ export default async function RootLayout({
                   </div>
                 </div>
                 <div className="footer-bottom">
-                  <p>&copy; 2026 Koda Store. Built with The Digital Curator design philosophy.</p>
+                  <p>&copy; 2026 Capacious Emporium. Built with The Digital Curator design philosophy.</p>
                 </div>
               </div>
             </footer>

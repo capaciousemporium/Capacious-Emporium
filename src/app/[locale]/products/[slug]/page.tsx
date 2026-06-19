@@ -6,7 +6,7 @@ import ProductReviewSection from "@/components/ProductReviews";
 import BuyButton from "@/components/BuyButton";
 import { ShieldCheck, Truck, RefreshCw } from "lucide-react";
 import { convertUsdToCurrency, formatCurrency, normalizeCurrency } from "@/lib/currency";
-
+import ProductGallery from "@/components/ProductGallery";
 export default async function ProductDetailPage({
   params,
 }: {
@@ -59,32 +59,19 @@ export default async function ProductDetailPage({
         <Link href={`/${locale}`}>Home</Link> / <Link href={`/${locale}/products`}>Products</Link> / <span style={{ color: 'var(--on-surface)' }}>{product.name}</span>
       </nav>
 
-      <div className="product-detail-layout" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 1.5fr', gap: '4rem', alignItems: 'start' }}>
+      <div className="product-detail-layout" >
         {/* Gallery */}
-        <div className="animate-in">
-          <div className="detail-image-wrap" style={{ 
-            aspectRatio: '1/1', background: 'var(--surface-container)', 
-            borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-            boxShadow: 'var(--shadow-lg)'
-          }}>
-            <img src={images[0] || "/placeholder.png"} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          {/* Thumbnails if any */}
-          {images.length > 1 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginTop: '1rem' }}>
-              {images.map((img: string, i: number) => (
-                <div key={i} style={{ aspectRatio: '1/1', border: '2px solid var(--surface-container-high)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                   <img src={img} alt={`${product.name} ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+       <div className="animate-in">
+  <ProductGallery
+    images={images}
+    productName={product.name}
+  />
+</div>
 
         {/* Content */}
         <div className="animate-in" style={{ animationDelay: '0.1s' }}>
           <span className="card-meta" style={{ display: 'block', marginBottom: '0.75rem' }}>{product.category?.name}</span>
-          <h1 style={{ fontSize: '3rem', marginBottom: '1.25rem', lineHeight: '1.1', fontWeight: 800 }}>{product.name}</h1>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1.25rem', lineHeight: '1.1', fontWeight: 800 }}>{product.name}</h1>
           
          <div
   className="card-price"

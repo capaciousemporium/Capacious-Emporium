@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { convertUsdToCurrency, formatCurrency, normalizeCurrency } from "@/lib/currency";
-
+import ProductSort from "@/components/ProductSort";
 export default async function ProductsPage({
   params,
   searchParams,
@@ -42,12 +42,7 @@ const displayLocale =
         
         {/* Simple Filters */}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <select className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
-            <option value="">Sort By</option>
-            <option value="price_asc">Price Low to High</option>
-            <option value="price_desc">Price High to Low</option>
-            <option value="newest">Newest Arrivals</option>
-          </select>
+          <ProductSort />
         </div>
       </div>
 

@@ -20,13 +20,14 @@ export class GeminiProvider implements AIProvider {
   name = "gemini";
 
   async chat(messages: ChatMessage[], userId?: string) {
+    
     // Current non-streaming implementation remains for backward compatibility
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
 
     const systemMessage = messages.find(m => m.role === "system");
     const chatMessages = messages.filter(m => m.role !== "system");
-
+console.log("GEMINI CALLED");
     const contents = chatMessages.map(m => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }]
@@ -302,30 +303,35 @@ export class ClaudeProvider implements AIProvider {
 export class RobustAIProvider implements AIProvider {
   name = "robust-multi-provider";
   private gemini = new GeminiProvider();
-  private openRouter = new OpenRouterProvider();
 
   async chat(messages: ChatMessage[], userId?: string) {
+    console.log("hi");
+    
     try {
       return await this.gemini.chat(messages, userId);
     } catch (e) {
-      return await this.openRouter.chat(messages);
+      const openRouter = new OpenRouterProvider();
+      return await openRouter.chat(messages);
     }
   }
 
-  async chatStream(messages: ChatMessage[], userId?: string): Promise<ReadableStream> {
+  async chatStream(messages: ChatMessage[], userId?: string) {
     try {
       return await this.gemini.chatStream(messages, userId);
     } catch (e) {
-      console.warn("Gemini stream failed, falling back to OpenRouter stream.");
       try {
-        return await this.openRouter.chatStream(messages);
-      } catch (e2) {
-        // Fallback to a simple readable stream that says error
+        const openRouter = new OpenRouterProvider();
+        return await openRouter.chatStream(messages);
+      } catch {
         return new ReadableStream({
           start(controller) {
-            controller.enqueue(new TextEncoder().encode("I'm sorry, I encountered an error connecting to my AI core. Please try again soon."));
+            controller.enqueue(
+              new TextEncoder().encode(
+                "I'm sorry, I encountered an error connecting to my AI core. Please try again soon."
+              )
+            );
             controller.close();
-          }
+          },
         });
       }
     }
