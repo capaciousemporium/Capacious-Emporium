@@ -289,7 +289,7 @@ export default function ReceiptPage() {
     // Header
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("KODA STORE", 20, y);
+    doc.text("Capacious Emporium", 20, y);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text("Official Purchase Receipt", 20, y + 7);
@@ -398,9 +398,9 @@ export default function ReceiptPage() {
     y = doc.internal.pageSize.getHeight() - 20;
     doc.setFontSize(7);
     doc.text("This is a computer-generated receipt. No signature required.", 20, y);
-    doc.text(`Koda Store | Generated ${new Date().toISOString()}`, 20, y + 4);
+    doc.text(`Capacious Emporium | Generated ${new Date().toISOString()}`, 20, y + 4);
 
-    doc.save(`KodaStore-Receipt-${order.id.substring(0, 8).toUpperCase()}.pdf`);
+    doc.save(`CapaciousEmporium-Receipt-${order.id.substring(0, 8).toUpperCase()}.pdf`);
   };
 
   if (loading) return <div className="container section empty-state"><h2>Loading receipt...</h2></div>;
@@ -467,7 +467,7 @@ export default function ReceiptPage() {
         {/* Store Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '2px solid #000' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em' }}>KODA STORE</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em' }}>Capacious Emporium</h2>
             <p style={{ fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>Official Purchase Receipt</p>
           </div>
           <div style={{ textAlign: 'right', fontSize: '0.8125rem' }}>
@@ -544,7 +544,7 @@ export default function ReceiptPage() {
             This is a computer-generated receipt. No signature required.
           </p>
           <p style={{ fontSize: '0.625rem', color: 'var(--on-surface-variant)', marginTop: '0.25rem' }}>
-            Koda Store | support@kodastore.com | Generated {new Date().toISOString().split('T')[0]}
+            Capacious Emporium | support@capaciousemporium.com | Generated {new Date().toISOString().split('T')[0]}
           </p>
         </div>
       </div>

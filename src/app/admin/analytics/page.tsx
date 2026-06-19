@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
             <div className="stat-label">Total Revenue</div>
             <div style={{ color: 'var(--primary)', opacity: 0.7 }}><DollarSign size={18} /></div>
           </div>
-          <div className="stat-value">{formatCurrency(data.totals.revenue, data.currency)}</div>
+          <div className="stat-value">₹{data.totals.revenue}</div>
           <div className="stat-change positive">Store cumulative total</div>
         </div>
 
@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
             <div className="stat-label">Avg. Ticket Size</div>
             <div style={{ color: 'var(--secondary)', opacity: 0.7 }}><TrendingUp size={18} /></div>
           </div>
-          <div className="stat-value">{formatCurrency(data.totals.avgOrder, data.currency)}</div>
+          <div className="stat-value">₹{data.totals.avgOrder}</div>
           <div className="stat-change">Weighted mean</div>
         </div>
 

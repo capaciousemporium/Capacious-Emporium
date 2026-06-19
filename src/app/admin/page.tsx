@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
         </div>
         <div className="stat-card">
           <p className="stat-label">Revenue</p>
-          <div className="stat-value">{formatCurrency(totalRevenue._sum.total || 0, storeCurrency)}</div>
+          <div className="stat-value">₹{totalRevenue._sum.total || 0}</div>
           <p className="stat-change">Captured order value</p>
         </div>
         <div className="stat-card">

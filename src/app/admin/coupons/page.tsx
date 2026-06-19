@@ -22,8 +22,8 @@ export default function AdminCouponsPage() {
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">("percentage");
-  const [discountValue, setDiscountValue] = useState(10);
-  const [minOrder, setMinOrder] = useState(0);
+const [discountValue, setDiscountValue] = useState("10");
+const [minOrder, setMinOrder] = useState("0");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -52,8 +52,8 @@ export default function AdminCouponsPage() {
           code: code.toUpperCase().trim(),
           description,
           discountType,
-          discountValue: Number(discountValue),
-          minOrder: Number(minOrder),
+         discountValue: Number(discountValue),
+  minOrder: Number(minOrder),
           active: true,
         }),
       });
@@ -62,8 +62,8 @@ export default function AdminCouponsPage() {
         setIsCreating(false);
         setCode("");
         setDescription("");
-        setDiscountValue(10);
-        setMinOrder(0);
+        setDiscountValue("10");
+        setMinOrder("0");
         fetchCoupons();
       } else {
         const err = await res.json();
@@ -119,14 +119,26 @@ export default function AdminCouponsPage() {
             </div>
             <div className="form-group">
               <label>Discount Value</label>
-              <input type="number" min="1" step="any" value={discountValue} onChange={e => setDiscountValue(Number(e.target.value))} required />
-            </div>
+<input
+  type="number"
+  min="1"
+  step="any"
+  value={discountValue}
+  onChange={(e) => setDiscountValue(e.target.value)}
+  required
+/>            </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Minimum Order Amount ($)</label>
-              <input type="number" min="0" step="any" value={minOrder} onChange={e => setMinOrder(Number(e.target.value))} required />
-            </div>
+              <label>Minimum Order Amount (₹)</label>
+<input
+  type="number"
+  min="0"
+  step="any"
+  value={minOrder}
+  onChange={(e) => setMinOrder(e.target.value)}
+  required
+/>            </div>
           </div>
           
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
@@ -162,8 +174,8 @@ export default function AdminCouponsPage() {
                 {coupons.map(c => (
                   <tr key={c.id}>
                     <td style={{ fontWeight: 700, color: 'var(--primary)', letterSpacing: '1px' }}>{c.code}</td>
-                    <td>{c.discountType === 'percentage' ? `${c.discountValue}%` : `$${c.discountValue}`}</td>
-                    <td>${c.minOrder}</td>
+                    <td>{c.discountType === 'percentage' ? `${c.discountValue}%` : `$₹{c.discountValue}`}</td>
+                    <td>₹{c.minOrder}</td>
                     <td>
                       <span className="badge" style={{ background: c.active ? '#16a34a20' : '#ba1a1a20', color: c.active ? '#16a34a' : '#ba1a1a' }}>
                         {c.active ? 'Active' : 'Disabled'}
