@@ -44,7 +44,7 @@ export default async function RootLayout({
     } catch {}
   }
   const head = await headers();
-  const locale = head.get("x-detected-locale") || "en-US";
+  const locale = head.get("x-detected-locale") || "en-IN";
   const currency = head.get("x-detected-currency") || "USD";
   const isAdmin = session?.role === "admin";
   const isSupport = session?.role === "support";

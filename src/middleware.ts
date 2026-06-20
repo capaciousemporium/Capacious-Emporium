@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const { auth } = NextAuth(authConfig);
 
+
 const PUBLIC_FILE = /\.(.*)$/;
 const SUPPORTED_LOCALES = ["en-US", "hi-IN", "en-GB", "en-IN", "en-NG", "en-CA", "en-AU", "en-JP", "en-DE", "en-FR", "en-BR"];
 
@@ -17,38 +18,15 @@ const COUNTRY_TO_CURRENCY: Record<string, string> = {
   JP: "JPY", DE: "EUR", FR: "EUR", BR: "BRL", US: "USD",
 };
 
-function detectCountry(request: NextRequest): string {
-  const countryHeaders = [
-    "cf-ipcountry",
-    "x-vercel-ip-country",
-    "x-country-code",
-    "cloudfront-viewer-country",
-    "x-appengine-country",
-  ];
-
-  for (const header of countryHeaders) {
-    const value = request.headers.get(header)?.toUpperCase();
-    if (value && value.length === 2 && value !== "XX" && COUNTRY_TO_LOCALE[value]) {
-      return value;
-    }
-  }
-
-  const acceptLang = (request.headers.get("accept-language") || "en-US").toLowerCase();
-  if (acceptLang.includes("-in") || acceptLang.includes("hi")) return "IN";
-  if (acceptLang.includes("-gb")) return "GB";
-  if (acceptLang.includes("-au")) return "AU";
-  if (acceptLang.includes("-ca")) return "CA";
-  if (acceptLang.includes("-jp")) return "JP";
-  if (acceptLang.includes("-de")) return "DE";
-  if (acceptLang.includes("-fr")) return "FR";
-  if (acceptLang.includes("-br") || acceptLang.includes("pt-br")) return "BR";
-
-  return "US";
+function detectCountry(): string {
+  return "IN";
 }
 
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export default auth(async (request) => {
+   console.log("MIDDLEWARE HIT:", request.nextUrl.pathname);
+
   const { pathname } = request.nextUrl;
   const user = request.auth?.user as any;
 
@@ -76,9 +54,9 @@ export default auth(async (request) => {
     }
   }
 
-  const detectedCountry = detectCountry(request);
-  const detectedLocale = COUNTRY_TO_LOCALE[detectedCountry] || "en-US";
-  const detectedCurrency = COUNTRY_TO_CURRENCY[detectedCountry] || "USD";
+// const detectedCountry = "IN";
+const detectedLocale = "en-IN";
+const detectedCurrency = "INR";
 
   // 3. ADMIN / SUPPORT ROUTES
   if (pathname.startsWith("/admin")) {
@@ -136,7 +114,12 @@ export default auth(async (request) => {
   const response = NextResponse.next();
   response.headers.set("x-detected-locale", pathLocale || locale);
   response.headers.set("x-detected-currency", currency);
+const detectedCountry = detectCountry();
 
+response.headers.set("x-debug-detected-country", detectedCountry);
+response.headers.set("x-debug-accept-language",
+  request.headers.get("accept-language") || "NONE"
+);
   if ((pathname.includes("/auth/login") || pathname.includes("/auth/signup")) && user) {
     const redirectTarget = request.nextUrl.searchParams.get("redirect") || "";
 
@@ -159,6 +142,8 @@ export default auth(async (request) => {
 
   return response;
 });
+
+
 
 export const config = {
   matcher: [

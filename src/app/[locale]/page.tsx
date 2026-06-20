@@ -6,7 +6,7 @@ import { convertUsdToCurrency, formatCurrency, normalizeCurrency } from "@/lib/c
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const head = await headers();
-  const currency = normalizeCurrency(head.get("x-detected-currency") || "USD");
+  const currency = normalizeCurrency(head.get("x-detected-currency") || "IN");
 
   const { locale } = await params;
   const money = (amount: number) => formatCurrency(convertUsdToCurrency(amount, currency), currency, locale);
