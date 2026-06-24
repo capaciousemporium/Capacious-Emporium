@@ -107,7 +107,26 @@ if (rememberMe) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+                      <div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: "0.5rem",
+  }}
+>
+  <Link
+    href={`/${locale}/auth/forgot-password`}
+    style={{
+      fontSize: "0.875rem",
+      color: "var(--primary)",
+      textDecoration: "none",
+    }}
+  >
+    Forgot Password?
+  </Link>
+</div>
           </div>
+
 <div className="remember-me">
   <input
     type="checkbox"
@@ -115,6 +134,7 @@ if (rememberMe) {
     checked={rememberMe}
     onChange={(e) => setRememberMe(e.target.checked)}
   />
+  
 
   <label htmlFor="rememberMe">
     Remember Me

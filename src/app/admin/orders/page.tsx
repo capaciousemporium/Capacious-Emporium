@@ -10,13 +10,23 @@ export default async function AdminOrders() {
   const session = await getSession();
   if (session?.role !== "admin") redirect("/en-US/auth/login");
 
-  const orders = await prisma.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { name: true, email: true } },
-      items: { select: { id: true, quantity: true } },
+ const orders = await prisma.order.findMany({
+  orderBy: { createdAt: "desc" },
+  include: {
+    user: {
+      select: {
+        name: true,
+        email: true,
+      },
     },
-  });
+    items: {
+      select: {
+        id: true,
+        quantity: true,
+      },
+    },
+  },
+});
 
   return (
     <div>
@@ -89,7 +99,10 @@ export default async function AdminOrders() {
     <AdminApprovePaymentButton orderId={order.id} />
   )}
 {normalizedStatus === "paid" && !order.trackingNumber && (
-  <AdminTrackingButton orderId={order.id} />
+  <AdminTrackingButton
+  orderId={order.id}
+
+/>
 )}
 
 {order.trackingNumber && (
@@ -99,9 +112,26 @@ export default async function AdminOrders() {
       padding: "0.4rem",
       border: "1px solid var(--outline-variant)",
       borderRadius: "6px",
+      display: "grid",
+      gap: "0.2rem",
     }}
   >
-    Tracking: {order.trackingNumber}
+    <div>
+      <strong>AWB:</strong> {order.trackingNumber}
+    </div>
+
+    {order.courierName && (
+      <div>
+        <strong>Courier:</strong> {order.courierName}
+      </div>
+    )}
+
+    {order.expectedDelivery && (
+      <div>
+        <strong>Delivery:</strong>{" "}
+        {new Date(order.expectedDelivery).toLocaleDateString()}
+      </div>
+    )}
   </div>
 )}
   {/* {canGenerateAwb && (

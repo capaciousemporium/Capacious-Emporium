@@ -8,48 +8,90 @@ export default function AdminTrackingButton({
 }: {
   orderId: string;
 }) {
-  const [trackingNo, setTrackingNo] = useState("");
   const router = useRouter();
 
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [courierName, setCourierName] = useState("Shiprocket");
+  const [expectedDelivery, setExpectedDelivery] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const saveTracking = async () => {
-    const res = await fetch(
-      `/api/admin/orders/${orderId}/tracking`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          trackingNumber: trackingNo,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.error);
+    if (!trackingNumber.trim()) {
+      alert("Tracking Number Required");
       return;
     }
 
-    alert("Tracking Number Saved");
-    router.refresh();
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `/api/admin/orders/${orderId}/tracking`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            trackingNumber,
+            courierName,
+            expectedDelivery,
+            trackingUrl: `https://www.shiprocket.in/shipment-tracking/${trackingNumber}`,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed");
+      }
+
+      alert("Shipment Details Saved");
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
+    <div
+      style={{
+        display: "grid",
+        gap: "0.4rem",
+      }}
+    >
       <input
-        value={trackingNo}
-        onChange={(e) => setTrackingNo(e.target.value)}
-        placeholder="Shiprocket Tracking Number"
+        value={trackingNumber}
+        onChange={(e) => setTrackingNumber(e.target.value)}
+        placeholder="AWB / Tracking Number"
       />
-<div style={{ display: "grid", gap: "0.35rem"  }}><button onClick={saveTracking}  type="button"
+
+      <input
+        value={courierName}
+        onChange={(e) => setCourierName(e.target.value)}
+        placeholder="Courier Name"
+      />
+
+      <input
+        type="date"
+        value={expectedDelivery}
+        onChange={(e) => setExpectedDelivery(e.target.value)}
+      />
+
+      <button
+        type="button"
+        onClick={saveTracking}
+        disabled={loading}
         className="btn btn-secondary"
-        
-        style={{ fontSize: "0.75rem", padding: "0.45rem 0.7rem" }}>
-        Save Tracking
-      </button></div>
-      
+        style={{
+          fontSize: "0.75rem",
+          padding: "0.45rem 0.7rem",
+        }}
+      >
+        {loading ? "Saving..." : "Save Shipment"}
+      </button>
     </div>
   );
 }

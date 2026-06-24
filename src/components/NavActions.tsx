@@ -145,7 +145,7 @@ const handleLogout = async () => {
  <House size={14}/> Home
 </Link>
 
-<Link href={`/${locale}/shop`} className="dropdown-link tablet-only">
+<Link href={`/${locale}/products`} className="dropdown-link tablet-only">
  <ShoppingBag size={14}/> Shop
 </Link>
 

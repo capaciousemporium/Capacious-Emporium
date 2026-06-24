@@ -65,6 +65,9 @@ export async function POST(
     const body = await req.json();
 
     const trackingNumber = body?.trackingNumber?.trim();
+    const courierName = body?.courierName?.trim();
+    const trackingUrl = body?.trackingUrl?.trim();
+    const expectedDelivery = body?.expectedDelivery;
 
     if (!trackingNumber) {
       return NextResponse.json(
@@ -79,6 +82,11 @@ export async function POST(
       },
       data: {
         trackingNumber,
+        courierName: courierName || null,
+        trackingUrl: trackingUrl || null,
+        expectedDelivery: expectedDelivery
+          ? new Date(expectedDelivery)
+          : null,
       },
     });
 
@@ -86,16 +94,16 @@ export async function POST(
       success: true,
       order,
     });
-  } catch (error) {
-    console.error("Tracking save error:", error);
+  } catch (error: any) {
+  console.error("Tracking save error:", error);
 
-    return NextResponse.json(
-      {
-        error: "Failed to save tracking number",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  return NextResponse.json(
+    {
+      error: error?.message || "Failed to save shipment details",
+    },
+    {
+      status: 500,
+    }
+  );
+}
 }

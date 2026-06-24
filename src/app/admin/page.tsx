@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { MessageSquare, Settings, ShoppingBag, TrendingUp, Users, BarChart3, PackageOpen } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
+import {
 
+  IndianRupee,
+ 
+  HeadphonesIcon,
+} from "lucide-react";
 export default async function AdminDashboard() {
   const session = await getSession();
   if (session?.role !== "admin") redirect("/en-US/auth/login");
@@ -50,27 +55,134 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="admin-stat-grid" style={{ marginBottom: "2rem" }}>
-        <div className="stat-card">
-          <p className="stat-label">Customers</p>
-          <div className="stat-value">{userCount}</div>
-          <p className="stat-change">Registered accounts</p>
-        </div>
-        <div className="stat-card">
-          <p className="stat-label">Revenue</p>
-          <div className="stat-value">₹{totalRevenue._sum.total || 0}</div>
-          <p className="stat-change">Captured order value</p>
-        </div>
-        <div className="stat-card">
-          <p className="stat-label">Orders</p>
-          <div className="stat-value">{orderCount}</div>
-          <p className="stat-change">Across all statuses</p>
-        </div>
-        <div className="stat-card">
-          <p className="stat-label">Human Tickets</p>
-          <div className="stat-value">{ticketCount}</div>
-          <p className={`stat-change ${ticketCount > 0 ? "negative" : "positive"}`}>{ticketCount > 0 ? "Needs attention" : "No pending queue"}</p>
-        </div>
-      </div>
+
+  {/* Customers */}
+  <div
+    className="stat-card"
+    style={{
+      background: "linear-gradient(135deg,#ff6a00,#ff8c42)",
+      color: "#fff",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    <Users
+      size={110}
+      style={{
+        position: "absolute",
+        right: "-10px",
+        bottom: "-10px",
+        opacity: 0.12,
+      }}
+    />
+
+    <p className="stat-label" style={{ color: "#fff" }}>
+      Customers
+    </p>
+
+    <div className="stat-value">{userCount}</div>
+
+    <p className="stat-change" style={{ color: "#fff" }}>
+      Registered accounts
+    </p>
+  </div>
+
+  {/* Revenue */}
+  <div
+    className="stat-card"
+    style={{
+      background: "linear-gradient(135deg,#3b82f6,#60a5fa)",
+      color: "#fff",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    <IndianRupee
+      size={120}
+      style={{
+        position: "absolute",
+        right: "-5px",
+        bottom: "-15px",
+        opacity: 0.12,
+      }}
+    />
+
+    <p className="stat-label" style={{ color: "#fff" }}>
+      Revenue
+    </p>
+
+    <div className="stat-value">
+      ₹{totalRevenue._sum.total || 0}
+    </div>
+
+    <p className="stat-change" style={{ color: "#fff" }}>
+      Captured order value
+    </p>
+  </div>
+
+  {/* Orders */}
+  <div
+    className="stat-card"
+    style={{
+      background: "linear-gradient(135deg,#14b8a6,#20c997)",
+      color: "#fff",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    <ShoppingBag
+      size={120}
+      style={{
+        position: "absolute",
+        right: "-10px",
+        bottom: "-15px",
+        opacity: 0.12,
+      }}
+    />
+
+    <p className="stat-label" style={{ color: "#fff" }}>
+      Orders
+    </p>
+
+    <div className="stat-value">{orderCount}</div>
+
+    <p className="stat-change" style={{ color: "#fff" }}>
+      Across all statuses
+    </p>
+  </div>
+
+  {/* Human Tickets */}
+  <div
+    className="stat-card"
+    style={{
+      background: "linear-gradient(135deg,#f59e0b,#fbbf24)",
+      color: "#fff",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    <HeadphonesIcon
+      size={120}
+      style={{
+        position: "absolute",
+        right: "-10px",
+        bottom: "-15px",
+        opacity: 0.12,
+      }}
+    />
+
+    <p className="stat-label" style={{ color: "#fff" }}>
+      Human Tickets
+    </p>
+
+    <div className="stat-value">{ticketCount}</div>
+
+    <p className="stat-change" style={{ color: "#fff" }}>
+      {ticketCount > 0 ? "Needs attention" : "No pending queue"}
+    </p>
+  </div>
+
+</div>
 
       <div className="admin-card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", gap: "1rem", flexWrap: "wrap" }}>

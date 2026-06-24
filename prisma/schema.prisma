@@ -4,8 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
- 
+  provider = "postgresql"
 }
 
 model User {
@@ -28,17 +27,19 @@ model User {
   createdAt               DateTime         @default(now())
   updatedAt               DateTime         @updatedAt
   passwordChangedAt       DateTime?
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  accounts                Account[]
   addresses               Address[]
+  cart                    Cart?
   orders                  Order[]
+  referredBy              Referral[]       @relation("ReferralReferred")
+  referrals               Referral[]       @relation("ReferralReferrer")
   reviews                 Review[]
+  sessions                Session[]
   assignedSupportSessions SupportSession[] @relation("AssignedSupportAgent")
   supportSessions         SupportSession[] @relation("CustomerSupportSessions")
-  referrals               Referral[]       @relation("ReferralReferrer")
-  referredBy              Referral[]       @relation("ReferralReferred")
-  cart                    Cart?
   wishlist                Wishlist?
-  accounts                Account[]
-  sessions                Session[]
 
   @@index([role])
 }
@@ -69,8 +70,8 @@ model Review {
   productId String
   userId    String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@index([productId])
   @@index([userId])
@@ -85,49 +86,46 @@ model Category {
 }
 
 model Product {
-  id          String             @id @default(uuid())
-  name        String
-  slug        String             @unique
-  description String
-  price       Float
-  salePrice   Float?
-  images      Json               @default("[]")
-  stock       Int                @default(0)
-  featured    Boolean            @default(false)
-  categoryId  String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  variants    ProductVariant[]
-  cartItems   CartItem[]
+  id            String           @id @default(uuid())
+  name          String
+  slug          String           @unique
+  description   String
+  price         Float
+  salePrice     Float?
+  images        Json             @default("[]")
+  stock         Int              @default(0)
+  featured      Boolean          @default(false)
+  categoryId    String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  category      Category?        @relation(fields: [categoryId], references: [id])
+  variants      ProductVariant[]
+  reviews       Review[]
   wishlistItems WishlistItem[]
-  orderItems  OrderItem[]
-  reviews     Review[]
-  category    Category?          @relation(fields: [categoryId], references: [id])
-  
 
   @@index([categoryId])
   @@index([featured])
 }
 
 model ProductVariant {
-  id            String      @id @default(uuid())
+  id            String         @id @default(uuid())
   productId     String
-  name          String      // e.g., "Size: XL", "Color: Blue"
-  sku           String      @unique
-  priceOverride Float?      // If null, use product.price
-  stock         Int         @default(0)
-  images        Json?       @default("[]")
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name          String
+  sku           String         @unique
+  priceOverride Float?
+  stock         Int            @default(0)
+  images        Json?          @default("[]")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   cartItems     CartItem[]
   orderItems    OrderItem[]
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   wishlistItems WishlistItem[]
 
   @@index([productId])
 }
-
-
 
 model SupportSession {
   id              String        @id @default(uuid())
@@ -136,9 +134,9 @@ model SupportSession {
   status          String        @default("ai_handling")
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  chatMessages    ChatMessage[]
   assignedAgent   User?         @relation("AssignedSupportAgent", fields: [assignedAgentId], references: [id])
   user            User?         @relation("CustomerSupportSessions", fields: [userId], references: [id])
-  chatMessages    ChatMessage[]
 
   @@index([userId])
   @@index([status])
@@ -158,24 +156,26 @@ model ChatMessage {
 }
 
 model Order {
-  id              String      @id @default(uuid())
-  userId          String
-  subtotal        Float       @default(0)
-  discountAmount  Float       @default(0)
-  couponCode      String?
-  currency        String      @default("USD")
-  total           Float
-  status          String      @default("pending")
-  paymentGateway  String
-  paymentId       String?
-  shippingAddress String?
-  trackingNumber  String?     @unique
-  trackingUrl     String?
-  qrCodeData      String?     // URL or internal deep link
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  user            User        @relation(fields: [userId], references: [id])
-  items           OrderItem[]
+  id               String      @id @default(uuid())
+  userId           String
+  subtotal         Float       @default(0)
+  discountAmount   Float       @default(0)
+  couponCode       String?
+  currency         String      @default("USD")
+  total            Float
+  status           String      @default("pending")
+  paymentGateway   String
+  paymentId        String?
+  shippingAddress  String?
+  trackingNumber   String?     @unique
+  trackingUrl      String?
+  qrCodeData       String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  courierName      String?
+  expectedDelivery DateTime?
+  user             User        @relation(fields: [userId], references: [id])
+  items            OrderItem[]
 
   @@index([userId])
   @@index([status])
@@ -183,15 +183,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
+  id        String          @id @default(uuid())
   orderId   String
   productId String
   variantId String?
   quantity  Int
   price     Float
-  product   Product  @relation(fields: [productId], references: [id])
+  order     Order           @relation(fields: [orderId], references: [id])
+  product   Product         @relation(fields: [productId], references: [id])
   variant   ProductVariant? @relation(fields: [variantId], references: [id])
-  order     Order    @relation(fields: [orderId], references: [id])
 
   @@index([orderId])
   @@index([productId])
@@ -202,18 +202,18 @@ model Cart {
   id        String     @id @default(uuid())
   userId    String     @unique
   updatedAt DateTime   @updatedAt
-  items     CartItem[]
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
 }
 
 model CartItem {
-  id        String  @id @default(uuid())
+  id        String          @id @default(uuid())
   cartId    String
   productId String
   variantId String?
-  quantity  Int     @default(1)
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int             @default(1)
+  cart      Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id])
   variant   ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@unique([cartId, productId, variantId])
@@ -225,19 +225,19 @@ model Wishlist {
   id        String         @id @default(uuid())
   userId    String         @unique
   updatedAt DateTime       @updatedAt
-  items     WishlistItem[]
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
 }
 
 model WishlistItem {
-  id        String   @id @default(uuid())
+  id         String          @id @default(uuid())
   wishlistId String
-  productId String
-  variantId String?
-  createdAt DateTime @default(now())
-  wishlist  Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
-  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  productId  String
+  variantId  String?
+  createdAt  DateTime        @default(now())
+  product    Product         @relation(fields: [productId], references: [id])
+  variant    ProductVariant? @relation(fields: [variantId], references: [id])
+  wishlist   Wishlist        @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
 
   @@unique([wishlistId, productId, variantId])
   @@index([wishlistId])
@@ -253,9 +253,6 @@ model SiteSettings {
   taxRate            Float   @default(0)
   maintenanceMode    Boolean @default(false)
   maintenanceMessage String  @default("We're currently performing maintenance. Please check back shortly.")
-
-
- 
 }
 
 model Announcement {
@@ -294,28 +291,28 @@ model Referral {
   rewardAwarded Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  referrer      User     @relation("ReferralReferrer", fields: [referrerId], references: [id])
   referred      User     @relation("ReferralReferred", fields: [referredId], references: [id])
+  referrer      User     @relation("ReferralReferrer", fields: [referrerId], references: [id])
 
   @@unique([referrerId, referredId])
   @@index([referrerId])
   @@index([referredId])
 }
+
 model Account {
   id                String  @id @default(uuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -336,19 +333,12 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-
-
-
-
 model ShiprocketSettings {
-  id          Int      @id @default(1)
-
-  email       String
-  password    String
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(1)
+  email     String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("shiprocket_settings")
 }

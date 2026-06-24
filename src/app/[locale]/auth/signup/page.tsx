@@ -3,10 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import { User, Mail, Lock, Phone, MapPin, Globe, Ticket } from "lucide-react";
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Globe,
+  Ticket,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { COUNTRIES } from "@/lib/countries";
 import { useSearchParams } from "next/navigation";
-
+import Image from "next/image";
+import Logo from "../../../../../public/images/CE_Logo.png";
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +32,7 @@ export default function SignupPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -67,10 +79,11 @@ export default function SignupPage() {
       <div className="auth-card animate-in">
         <div className="auth-header">
           <Link href={`/${locale}`} className="logo" style={{ fontSize: '1.5rem', marginBottom: '1rem', display: 'inline-block' }}>
-            KODA<span className="logo-accent">STORE</span>
+           <Image src={Logo} alt="CapaciousEmporium" width={80} height={80} />
+            {/* Capacious<span className="logo-accent">Emporium</span> */}
           </Link>
-          <h1 className="auth-title">Initialize Profile</h1>
-          <p className="auth-subtitle">Join the elite editorial marketplace.</p>
+          <h1 className="auth-title">Create Your Account</h1>
+          <p className="auth-subtitle">Sign up to start shopping with us.</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}
@@ -78,63 +91,105 @@ export default function SignupPage() {
         <form className="auth-form" onSubmit={handleSignup}>
           {/* Identity */}
           <div className="form-group">
-            <label htmlFor="name">Full Identity</label>
+            <label htmlFor="name">Full Name</label>
             <div style={{ position: 'relative' }}>
               <User size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
-              <input id="name" placeholder="Johnathan Doe" style={{ paddingLeft: '2.75rem' }} value={formData.name} onChange={handleInputChange} required />
+              <input id="name" placeholder="Enter Full Name" style={{ paddingLeft: '2.75rem' }} value={formData.name} onChange={handleInputChange} required />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email Access</label>
+            <label htmlFor="email">Email Address</label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
-              <input id="email" type="email" placeholder="john@example.com" style={{ paddingLeft: '2.75rem' }} value={formData.email} onChange={handleInputChange} required />
+              <input id="email" type="email" placeholder="Enter Email Address" style={{ paddingLeft: '2.75rem' }} value={formData.email} onChange={handleInputChange} required />
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Secure Cypher</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
-              <input id="password" type="password" placeholder="••••••••" style={{ paddingLeft: '2.75rem' }} value={formData.password} onChange={handleInputChange} required />
-            </div>
-          </div>
+       <div className="form-group">
+  <label htmlFor="password">Create Password</label>
+
+  <div style={{ position: "relative" }}>
+    <Lock
+      size={16}
+      style={{
+        position: "absolute",
+        left: "1rem",
+        top: "1rem",
+        color: "var(--on-surface-variant)",
+      }}
+    />
+
+    <input
+      id="password"
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter Password"
+      style={{
+        paddingLeft: "2.75rem",
+        paddingRight: "3rem",
+      }}
+      value={formData.password}
+      onChange={handleInputChange}
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      style={{
+        position: "absolute",
+        right: "1rem",
+        top: "50%",
+        transform: "translateY(-50%)",
+        border: "none",
+        background: "transparent",
+        cursor: "pointer",
+        color: "var(--on-surface-variant)",
+      }}
+    >
+      {showPassword ? (
+        <EyeOff size={18} />
+      ) : (
+        <Eye size={18} />
+      )}
+    </button>
+  </div>
+</div>
 
           <div className="form-group">
-            <label htmlFor="phone">Phone Identifier</label>
+            <label htmlFor="phone">Mobile Number</label>
             <div style={{ position: 'relative' }}>
               <Phone size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
-              <input id="phone" type="tel" placeholder="+1 (555) 123-4567" style={{ paddingLeft: '2.75rem' }} value={formData.phone} onChange={handleInputChange} required />
+              <input id="phone" type="tel" placeholder="Enter Mobile Number" style={{ paddingLeft: '2.75rem' }} value={formData.phone} onChange={handleInputChange} required />
             </div>
           </div>
 
           {/* Logistics Coordination */}
           <div style={{ margin: '1.5rem 0 1rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--on-surface-variant)' }}>Delivery Logistics</h3>
+            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--on-surface-variant)' }}>Delivery Address</h3>
           </div>
 
           <div className="form-group">
-            <label htmlFor="address">Shipment Registry (Address)</label>
+            <label htmlFor="address">Full Address</label>
             <div style={{ position: 'relative' }}>
               <MapPin size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
-              <input id="address" placeholder="123 Curandero Blvd" style={{ paddingLeft: '2.75rem' }} value={formData.address} onChange={handleInputChange} required />
+              <input id="address" placeholder="House No, Street, Area" style={{ paddingLeft: '2.75rem' }} value={formData.address} onChange={handleInputChange} required />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="city">City</label>
-              <input id="city" placeholder="New York" value={formData.city} onChange={handleInputChange} required />
+              <input id="city" placeholder="Enter City" value={formData.city} onChange={handleInputChange} required />
             </div>
             <div className="form-group">
               <label htmlFor="zip">ZIP/Postal</label>
-              <input id="zip" placeholder="10001" value={formData.zip} onChange={handleInputChange} required />
+              <input id="zip" placeholder="PIN Code" value={formData.zip} onChange={handleInputChange} required />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="country">Region</label>
+            <label htmlFor="country">Country</label>
             <div style={{ position: 'relative' }}>
               <Globe size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
               <select id="country" style={{ paddingLeft: '2.75rem' }} value={formData.country} onChange={handleInputChange}>
@@ -146,7 +201,7 @@ export default function SignupPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="referralCode">Referral Invite Code (Optional)</label>
+            <label htmlFor="referralCode">Referral Code (Optional)</label>
             <div style={{ position: 'relative' }}>
               <Ticket size={16} style={{ position: 'absolute', left: '1rem', top: '1rem', color: 'var(--on-surface-variant)' }} />
               <input id="referralCode" placeholder="Enter invite code" style={{ paddingLeft: '2.75rem', background: 'var(--surface-container-high)' }} value={formData.referralCode} onChange={handleInputChange} />
@@ -154,7 +209,7 @@ export default function SignupPage() {
           </div>
 
           <button className="btn btn-primary" style={{ width: '100%', padding: '0.875rem', marginTop: '1.5rem' }} disabled={loading}>
-            {loading ? "Registering Identity..." : "Join the Curation"}
+            {loading ? "Registering Identity..." : "Create Account"}
           </button>
         </form>
 

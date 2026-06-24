@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-
+import nodemailer from "nodemailer";
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -13,7 +20,26 @@ export async function POST(
     }
 
     const { id } = await params;
-    const order = await prisma.order.findUnique({ where: { id } });
+    const order = await prisma.order.findUnique({
+  where: { id },
+  include: {
+    user: {
+      select: {
+        name: true,
+        email: true,
+      },
+    },
+    items: {
+      include: {
+        product: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    },
+  },
+});
 
     if (!order) {
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
@@ -28,6 +54,105 @@ export async function POST(
       where: { id },
       data: { status: "delivered" },
     });
+
+    const productList = order.items
+  .map(
+    (item) => `
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd;">
+          ${item.product?.name || "Product"}
+        </td>
+        <td style="padding:8px;border:1px solid #ddd;text-align:center;">
+          ${item.quantity}
+        </td>
+      </tr>
+    `
+  )
+  .join("");
+
+if (order.user?.email) {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: order.user.email,
+    subject: `Your Order Has Been Delivered`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:700px;margin:auto;">
+        
+        <h2>Hello ${order.user.name || "Customer"},</h2>
+
+        <p>
+          Your order has been successfully delivered.
+        </p>
+
+        <p>
+          Thank you for shopping with us.
+        </p>
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:15px;
+            margin-bottom:20px;
+          "
+        >
+          <tr>
+            <td style="padding:8px;border:1px solid #ddd;">
+              <strong>Order ID</strong>
+            </td>
+            <td style="padding:8px;border:1px solid #ddd;">
+              ${order.id}
+            </td>
+          </tr>
+        </table>
+
+        <h3>Delivered Items</h3>
+
+        <table
+          style="
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+          "
+        >
+          <thead>
+            <tr>
+              <th
+                style="
+                  border:1px solid #ddd;
+                  padding:8px;
+                  text-align:left;
+                "
+              >
+                Product
+              </th>
+
+              <th
+                style="
+                  border:1px solid #ddd;
+                  padding:8px;
+                "
+              >
+                Qty
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${productList}
+          </tbody>
+        </table>
+
+        <br/>
+
+        <p>
+          We hope you enjoy your purchase. We'd love to hear your feedback.
+        </p>
+
+      </div>
+    `,
+  });
+}
 
     // Check if this user was referred and award remaining 400 coins on first delivered order
     // (100 already awarded on registration, 400 more on first delivery)
